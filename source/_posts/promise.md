@@ -1,6 +1,6 @@
 ---
 layout: js
-title: promise
+title: Promise 到 Generator 再到 Async / Await
 date: 2019-08-23 16:50:03
 categories:
   - 前端
@@ -10,7 +10,7 @@ tags: js
 
 ![插图](./../../../../images/001.jpg)
 
-#### 1. js 异步
+#### 1. js 异步处理的
 
 异步最早的解决方案是回调函数，如事件的回调，setInterval/setTimeout 中的回调。但是回到函数有一个很常见的问题，回调地狱。
 
@@ -453,16 +453,18 @@ t.next(5) //d输出5; 返回{value: undefined, done: true}
 
 - async
 
+  async关键字，**定义的函数是异步函数，返回promise对象**
+
   await 操作符用于等待一个 Promise 对象, **只能在异步函数 async function 内部使用**.
-
+  
   ```javascript
-  const fun1 = () => console.log('我是同步函数1')
-  const fun2 = () => console.log('我是同步函数2')
-
+const fun1 = () => console.log('叭叭叭1')
+  const fun2 = () => console.log('叭叭叭2')
+  
   const fun = async () => {
     // async关键字，定义的函数是异步函数，返回promise对象
     await fun1()
   }
   fun().then(fun2())
-  console.log('巴拉巴拉')
+  console.log('叭叭叭')
   ```
