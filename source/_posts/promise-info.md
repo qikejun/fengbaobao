@@ -5,6 +5,8 @@ categories:
   - 前端
   - Js
 tags: js
+photos:
+  - 'https://yunpengGit.github.io/code/mock-img/fengbaobao/wangye2.jpg'
 ---
 
 ### Promise 介绍
