@@ -37,7 +37,7 @@ photos:
 
 6. Symbol，抛出错误
 
-7. 对象，则调用对象的 `valueOf()` 方法，然后依据前面的规则转换返回的值。如果转换的结果是 `NaN` ，则调用对象的 `toString()` 方法，再次依照前面的规则转换返回的字符串值
+7. 对象，则调用对象的 `valueOf()` 方法，然后依据前面的规则转换返回的值。如果转换的// `NaN` ，则调用对象的 `toString()` 方法，再次依照前面的规则转换返回的字符串值
 
    ```javascript
    Number('0X12') //18
@@ -198,7 +198,7 @@ ______
 
    ```js
    String({}) //"[object Object]"
-   {}+''      //0
+   
    String([]) //""
    []+''      //""
    String(null) //"null"
@@ -221,7 +221,8 @@ ______
    console.log(undefined+{}) //null[object Object]
    ```
 
-   * 将对象，数组数字转换为 字符串拼接）
+
+   * 将对象，数组数字转换为 字符串拼接
 
    ```js
    console.log({}+10); //"[object Object]10"
@@ -281,11 +282,76 @@ console.log(1 > {});//返回false.
 
 3. 其中一个是 Symbol 类型，那么返回 false.
 
-4. 两个操作值是否为 string 和 number，将字符串转换为 number
+4. 两个 一个值是数字，另一个值是字符串，先将字符串转换为数学，然后使用转换后的值进行比较。 
 
-5. 一个操作值是 boolean，那么转换成 number
+   ```js
+   0=='01' //=> 0==0 true
+   //比较
+   0=='0' //=> 0==0  true
+   0==[]  //=> 0==0  true
+   '0'==[]  //=> '0'==''  false
+   ```
 
-6. 一个操作值为 object 且另一方为 string、number 或者 symbol，是的话就会把 object 转为原始类型再进行判断(调用 object 的valueOf() / toString()方法进行转换)
+5. **几个特殊的对象：`''，0，'0'，[]，{}`**
+
+   **<span style="color:skyblue"> `{}` 对象在有操作符中执行时，在 `{}` 之前有操作符，则当做 `{}` 空对象处理，如果没有则被当作一个独立的空代码块（不执行任何操作)</span>**
+
+   ```js
+   //...+...加号的运算优先级从左到右
+   ''+{}  //"[object Object]"     ''字符串遇到+执行字符串拼接操作,{}当做一个空对象处理，转为字符串"[object Object]"
+   {}+'' //0  {}之前没有任何操作符，被当作一个独立的空代码块（不执行任何操作),+''空字符串转为数字0
+   
+   {}+''=== 0  //true
+   {}+''=='0' //true => 0 =='0'
+   ''+{}=='0' //false =>
+   '0'=={}+'' //false => '0'=="[object Object]"+'' {}之前有==操作符，当做空对象处理，+ 执行字符串拼接操作
+   '0'==''+{} //false =>'0'==''+"[object Object]" {}之前有+操作符，当做空对象处理，+ 执行字符串拼接操作
+   
+   //...==... 运算优先级从左到右
+   0=='0' //true => 0==0   +'0'=> 0
+   0==[]  //true 0==0     +[]=> 0
+   '0'==[] //false '0'=='' []+''=>''
+   
+   []+{}   // "[object Object]"
+   {}+[]   // 0
+   ({}+[])   // "[object Object]"
+   +[]     // 0   ，此处+为正号
+   +{}     // NaN   ，此处+为正号
+   [].toString()    // ""
+   ({}).toString() // "[object Object]"    
+   {}.toString() //会出错，Uncaught SyntaxError: Unexpected token .
+   0+[]    // "0"
+   0+{}    // "0[object Object]"
+   ```
+
+6. 一个操作值是 boolean，那么转换成 number
+
+7. 一个操作值为 object 且另一方为 string、number 或者 symbol，是的话就会把 object 转为原始类型再进行判断(调用 object 的valueOf() / toString()方法进行转换)
+
+   ```js
+   //== 左右的对象转换 
+   //三目运算符？前面的对象转换为Boolean类型
+   console.log(([])?true:false); 
+   console.log(([]==false?true:false)); 
+   console.log(({}==false)?true:false)
+   
+   下面是题目的类型转换结果：
+   
+   Boolean([]); //true
+   Number([]); //0
+   Number({}); // NaN
+   Number(false); //0
+   
+   因此：
+   
+   console.log(([])?true:false);// => console.log((true)?true:false); 三目运算符？前面的表达式需要转换为Boolean类型 !!快捷转换
+   console.log(1?true:false);// => console.log(true?true:false); 
+   console.log(0?true:false);// => console.log(false?true:false); 
+   
+   console.log([]==false?true:false); // => console.log(0==0?true:false);
+   console.log(({}==false)?true:false); // => console.log((NaN==0)?true:false);
+   ```
+
 
 > **对象如何转换成原始数据类型**
 
@@ -309,11 +375,74 @@ let obj = {
 console.log(obj + 200); //400
 ```
 
+**a等于什么以下逻辑打印1**
 
+```js
+// a=?
+if(a == 1 && a == 2 && a == 3) {
+    console.log(1);
+}
+```
 
+1. a为对象，a的取值规则 [对象如何转换成原始数据类型] 
 
+   取值相关的三个属性方法，Symbol.toPrimitive、valueOf、toString
 
+   * Symbol.toPrimitive示例
 
+     ```js
+     //利用闭包创建独立作用域的特性，每次返回一个值
+     let a = {
+         [Symbol.toPrimitive]: (function() {
+                 let i = 1;
+                 return function() {
+                     return i++;
+                 }
+         })()
+     }
+     if(a == 1 && a == 2 && a == 3) {
+         console.log(1);
+     }
+     
+     //a设定一个属性i返回,每次取值都返回这个改变后的i
+     let a = {
+         i:1,
+         [Symbol.toPrimitive]: function() {
+                 return this.i++;
+         }
+     }
+     if(a == 1 && a == 2 && a == 3) {
+         console.log(1);
+     }
+     ```
 
- 
+   * valueOf、toString 同上
+
+2. Object.definePropert 获取a属性时，调用get.
+
+   ```js
+   let b=1;
+   Object.defineProperty(window, 'a', {
+     get: function() {
+       return b++;
+     }
+   });
+   if(a == 1 && a == 2 && a == 3) {
+       console.log(1);
+   }
+   ```
+
+3. 数组
+
+   ```js
+   var a = [1,2,3];
+   a.join = a.shift;
+   if(a == 1 && a == 2 && a == 3) {
+       console.log(1);
+   }
+   ```
+
+   数组在类型转换时调用toString()返回一个字符串，该字符串有由数组的每一个值的toString()返回值调用join()连接而成（join默认使用逗号连接）；重写 join 方法，让其依次返回数组元素
+
+   
 
